@@ -322,8 +322,15 @@ public class WordServiceImpl implements WordService {
                 if (param.get("description") != null &&  (String.valueOf(param.get("description"))).endsWith(" .")) {
                     request.setRequire(true);
                 }
-                // 参数说明
-                request.setRemark(String.valueOf(param.get("description")));
+
+                if(param.get("description") != null &&  (String.valueOf(param.get("description"))).contains(".")){
+                    // 参数说明
+                    request.setRemark(String.valueOf(param.get("description")).substring(0,String.valueOf(param.get("description")).lastIndexOf(".")-1));
+                }else{
+                    // 参数说明
+                    request.setRemark(String.valueOf(param.get("description")));
+                }
+
                 requestList.add(request);
             }
         }
@@ -346,7 +353,9 @@ public class WordServiceImpl implements WordService {
             // 状态码 200 201 401 403 404 这样
             response.setName(entry.getKey());
             LinkedHashMap<String, Object> statusCodeInfo = (LinkedHashMap) entry.getValue();
-            response.setDescription(String.valueOf(statusCodeInfo.get("description")));
+            response.setDescription(String.valueOf(statusCodeInfo.get("description")) == null ? "" : String.valueOf(statusCodeInfo.get("description")).contains(".")
+                    ? String.valueOf(statusCodeInfo.get("description")).substring(0,String.valueOf(statusCodeInfo.get("description")).lastIndexOf(".")):String.valueOf(statusCodeInfo.get("description")));
+
             Object schema = statusCodeInfo.get("schema");
             if (schema != null) {
                 Object originalRef = ((LinkedHashMap) schema).get("originalRef");
@@ -465,6 +474,7 @@ public class WordServiceImpl implements WordService {
                 modeAttr.setRequire(true);
             }
         }
+        modeAttr.setDescription(description == null ? "" : description.toString().contains(".") ? description.toString().substring(0,description.toString().lastIndexOf(".")):description.toString());
         return modeAttr;
     }
 
@@ -503,6 +513,9 @@ public class WordServiceImpl implements WordService {
             if (child.getDescription() != null &&  child.getDescription().endsWith(" .")){
                 child.setRequire(true);
             }
+            child.setDescription((String) attrInfoMap.get("description") == null ? "" :
+                    ((String) attrInfoMap.get("description")).contains(".") ?
+                            ((String) attrInfoMap.get("description")).substring(0,((String) attrInfoMap.get("description")).lastIndexOf(".")):((String) attrInfoMap.get("description")).toString());
             attrList.add(child);
         }
         return attrList;
