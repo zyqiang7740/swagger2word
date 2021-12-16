@@ -318,6 +318,10 @@ public class WordServiceImpl implements WordService {
                 if (param.get("required") != null) {
                     request.setRequire((Boolean) param.get("required"));
                 }
+                //约定描述中解析不为空
+                if (param.get("description") != null &&  (String.valueOf(param.get("description"))).endsWith(" .")) {
+                    request.setRequire(true);
+                }
                 // 参数说明
                 request.setRemark(String.valueOf(param.get("description")));
                 requestList.add(request);
@@ -455,6 +459,11 @@ public class WordServiceImpl implements WordService {
             } else if (required instanceof Boolean) {
                 modeAttr.setRequire(Boolean.parseBoolean(required.toString()));
             }
+        }else{
+            //约定描述中解析不为空
+            if (modeAttr.getDescription() != null &&  modeAttr.getDescription().endsWith(" .")) {
+                modeAttr.setRequire(true);
+            }
         }
         return modeAttr;
     }
@@ -490,6 +499,10 @@ public class WordServiceImpl implements WordService {
                 child.setType(child.getType() + ":" + clsName);
             }
             child.setDescription((String) attrInfoMap.get("description"));
+            //约定描述中解析不为空
+            if (child.getDescription() != null &&  child.getDescription().endsWith(" .")){
+                child.setRequire(true);
+            }
             attrList.add(child);
         }
         return attrList;
@@ -594,6 +607,7 @@ public class WordServiceImpl implements WordService {
         if ((pos = type.indexOf(":")) != -1) {
             type = type.substring(0, pos);
         }
+
         switch (type) {
             case "string":
                 return "string";
@@ -620,6 +634,7 @@ public class WordServiceImpl implements WordService {
                 list.add(map);
                 return list;
             case "object":
+            case "body":
                 map = new LinkedHashMap<>();
                 if (modelAttr != null && !CollectionUtils.isEmpty(modelAttr.getProperties())) {
                     for (ModelAttr subModelAttr : modelAttr.getProperties()) {
